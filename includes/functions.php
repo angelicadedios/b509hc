@@ -550,11 +550,12 @@ function send_mail(string $to, string $subject, string $html, string $text): boo
         }
         return $out;
     };
-    $cmd = function (string $c, array $ok) use ($fp, $read): string {
+    // $label is what goes in the error log. Never log the login lines (they contain the password).
+    $cmd = function (string $c, array $ok, string $label = '') use ($fp, $read): string {
         fwrite($fp, $c . "\r\n");
         $r = $read();
         if (!in_array((int)substr($r, 0, 3), $ok, true)) {
-            throw new RuntimeException('SMTP error after "' . explode(' ', $c)[0] . '": ' . trim($r));
+            throw new RuntimeException('SMTP error at ' . ($label !== '' ? $label : explode(' ', $c)[0]) . ': ' . trim($r));
         }
         return $r;
     };
@@ -569,8 +570,8 @@ function send_mail(string $to, string $subject, string $html, string $text): boo
             $cmd('EHLO ' . $me, [250]);
         }
         $cmd('AUTH LOGIN', [334]);
-        $cmd(base64_encode(SMTP_USER), [334]);
-        $cmd(base64_encode(SMTP_PASS), [235]);
+        $cmd(base64_encode(SMTP_USER), [334], 'login (email address)');
+        $cmd(base64_encode(SMTP_PASS), [235], 'login (App Password) - check SMTP_USER and SMTP_PASS');
         $cmd('MAIL FROM:<' . SMTP_USER . '>', [250]);
         $cmd('RCPT TO:<' . $to . '>', [250, 251]);
         $cmd('DATA', [354]);
