@@ -14,6 +14,7 @@ function env(string $key, $default = '')
 {
     $v = getenv($key);
     if ($v === false || $v === '') $v = $_ENV[$key] ?? $_SERVER[$key] ?? null;
+    $v = is_string($v) ? trim($v, " \t\n\r\0\x0B\"'") : $v;   // ignore accidental spaces/quotes from copy-paste
     return ($v === null || $v === '') ? $default : $v;
 }
 
@@ -35,8 +36,8 @@ define('GOOGLE_CLIENT_ID', env('GOOGLE_CLIENT_ID', 'PASTE-YOUR-CLIENT-ID.apps.go
 // Email for "account approved" messages (Gmail + App Password, free)
 define('SMTP_HOST', env('SMTP_HOST', 'smtp.gmail.com'));
 define('SMTP_PORT', (int)env('SMTP_PORT', '465'));
-define('SMTP_USER', env('SMTP_USER', ''));           // your Gmail address
-define('SMTP_PASS', env('SMTP_PASS', ''));           // 16-letter Google App Password
+define('SMTP_USER', strtolower(env('SMTP_USER', '')));           // your Gmail address
+define('SMTP_PASS', preg_replace('/\s+/', '', env('SMTP_PASS', '')));  // Google shows it with spaces; remove them           // 16-letter Google App Password
 define('MAIL_FROM_NAME', env('MAIL_FROM_NAME', APP_NAME));
 
 // Optional paid SMS (Semaphore). Leave empty to use in-app notifications only.
