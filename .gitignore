@@ -1,0 +1,9 @@
+# Never upload passwords to GitHub
+.env
+.env.*
+.vercel
+uploads/*
+!uploads/index.html
+!uploads/.htaccess
+.DS_Store
+Thumbs.db

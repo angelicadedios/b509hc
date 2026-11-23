@@ -1,0 +1,11 @@
+Options -Indexes
+DirectoryIndex index.php
+
+<FilesMatch "^(config\.php|README\.md|\..*)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_php.c>
+    php_value upload_max_filesize 6M
+    php_value post_max_size 12M
+</IfModule>
